@@ -1,0 +1,34 @@
+{
+  "name": "txst-lab-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:app": "tauri build",
+    "build:mac": "tauri build --bundles app,dmg",
+    "build:linux": "tauri build --bundles deb,appimage,rpm",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.9.0",
+    "@vitejs/plugin-react": "^5.1.1",
+    "vite": "^7.2.7",
+    "typescript": "^5.9.3",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "lucide-react": "^0.561.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "jsdom": "^27.3.0",
+    "vitest": "^4.0.15"
+  }
+}

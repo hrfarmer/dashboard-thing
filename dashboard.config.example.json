@@ -1,0 +1,45 @@
+{
+  "refreshIntervalSeconds": 30,
+  "github": {
+    "tokenEnv": "GITHUB_TOKEN",
+    "organizations": [
+      {
+        "owner": "example-org",
+        "repositories": ["example-repo"]
+      }
+    ],
+    "repositories": [
+      {
+        "owner": "example-user",
+        "repo": "example-repo"
+      }
+    ]
+  },
+  "forgejo": {
+    "tokenEnv": "CODEBERG_TOKEN",
+    "instances": [
+      {
+        "name": "Codeberg",
+        "baseUrl": "https://codeberg.org",
+        "repositories": [
+          {
+            "owner": "example-user",
+            "repo": "example-repo"
+          }
+        ]
+      }
+    ]
+  },
+  "tailscale": {
+    "defaultSshUser": "lab",
+    "sshCommandTemplate": "tailscale ssh {user}@{host}",
+    "restartCommandTemplate": "tailscale ssh {user}@{host} sudo /sbin/shutdown -r now",
+    "devices": [
+      {
+        "name": "lab-runner-01",
+        "sshUser": "lab",
+        "restartable": true
+      }
+    ]
+  }
+}
