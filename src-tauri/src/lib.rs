@@ -2,7 +2,12 @@ use chrono::Utc;
 use reqwest::header::{ACCEPT, AUTHORIZATION, USER_AGENT};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{collections::HashMap, env, fs, path::PathBuf, process::Stdio};
+use std::{
+    collections::{HashMap, HashSet},
+    env, fs,
+    path::{Path, PathBuf},
+    process::Stdio,
+};
 use tauri::{AppHandle, Manager};
 use thiserror::Error;
 use tokio::process::Command;
@@ -631,13 +636,61 @@ fn load_config(app: &AppHandle) -> Result<DashboardConfig> {
 
 fn config_candidates(app: &AppHandle) -> Vec<PathBuf> {
     let mut candidates = Vec::new();
+
+    if let Ok(explicit_path) = env::var("TXST_DASHBOARD_CONFIG") {
+        push_config_candidate(&mut candidates, PathBuf::from(explicit_path));
+    }
     if let Ok(cwd) = env::current_dir() {
-        candidates.push(cwd.join("dashboard.config.json"));
+        push_config_candidate(&mut candidates, cwd.join("dashboard.config.json"));
     }
+    if let Ok(appimage_path) = env::var("APPIMAGE") {
+        push_config_candidate(&mut candidates, sibling_config_path(&PathBuf::from(appimage_path)));
+    }
+    if let Ok(exe_path) = env::current_exe() {
+        push_config_candidate(&mut candidates, sibling_config_path(&exe_path));
+    }
+    if let Ok(config_home) = env::var("XDG_CONFIG_HOME") {
+        push_config_candidate(
+            &mut candidates,
+            PathBuf::from(config_home).join("txst-lab-dashboard/dashboard.config.json"),
+        );
+    }
+    if let Ok(home) = env::var("HOME") {
+        push_config_candidate(
+            &mut candidates,
+            PathBuf::from(home).join(".config/txst-lab-dashboard/dashboard.config.json"),
+        );
+    }
+    push_config_candidate(
+        &mut candidates,
+        PathBuf::from("/etc/txst-lab-dashboard/dashboard.config.json"),
+    );
     if let Ok(resource) = app.path().resource_dir() {
-        candidates.push(resource.join("dashboard.config.json"));
+        push_config_candidate(&mut candidates, resource.join("dashboard.config.json"));
     }
-    candidates
+
+    dedupe_paths(candidates)
+}
+
+fn push_config_candidate(candidates: &mut Vec<PathBuf>, path: PathBuf) {
+    if path.as_os_str().is_empty() {
+        return;
+    }
+    candidates.push(path);
+}
+
+fn sibling_config_path(path: &Path) -> PathBuf {
+    path.parent()
+        .map(|parent| parent.join("dashboard.config.json"))
+        .unwrap_or_else(|| PathBuf::from("dashboard.config.json"))
+}
+
+fn dedupe_paths(paths: Vec<PathBuf>) -> Vec<PathBuf> {
+    let mut seen = HashSet::new();
+    paths
+        .into_iter()
+        .filter(|path| seen.insert(path.clone()))
+        .collect()
 }
 
 fn configured_device<'a>(config: &'a DashboardConfig, device_name: &str) -> Result<&'a ConfiguredDevice> {

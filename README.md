@@ -51,7 +51,22 @@ export GITHUB_TOKEN=...
 export CODEBERG_TOKEN=...
 ```
 
-The app looks for `dashboard.config.json` in the current working directory first. When running from source, keep it at the repository root.
+Config lookup order:
+
+1. `TXST_DASHBOARD_CONFIG`, if set to a file path.
+2. `dashboard.config.json` in the current working directory.
+3. `dashboard.config.json` next to the AppImage on Linux.
+4. `dashboard.config.json` next to the app executable.
+5. `$XDG_CONFIG_HOME/txst-lab-dashboard/dashboard.config.json`.
+6. `$HOME/.config/txst-lab-dashboard/dashboard.config.json`.
+7. `/etc/txst-lab-dashboard/dashboard.config.json`.
+8. Bundled app resources.
+
+When running from source, keep `dashboard.config.json` at the repository root. When running the Linux AppImage, either place `dashboard.config.json` beside the AppImage or launch it with:
+
+```sh
+TXST_DASHBOARD_CONFIG=/path/to/dashboard.config.json ./TXST\ Lab\ Dashboard_0.1.0_amd64.AppImage
+```
 
 ## Permissions
 
